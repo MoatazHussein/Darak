@@ -1,0 +1,8 @@
+﻿namespace Darak.Domain.Constants;
+
+public static class UserRoles
+{
+    public const string Admin = "Admin";
+    public const string Client = "Client";
+    public const string Contractor = "Contractor";
+}
