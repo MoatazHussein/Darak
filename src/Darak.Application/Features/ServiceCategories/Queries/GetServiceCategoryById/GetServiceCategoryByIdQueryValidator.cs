@@ -3,11 +3,11 @@ using FluentValidation;
 
 namespace Darak.Application.Features.ServiceCategories.Queries.GetServiceCategoryById;
 
-public class GetServiceCategoryByIdQueryHandlerValidator : AbstractValidator<GetServiceCategoryByIdQuery>
+public class GetServiceCategoryByIdQueryValidator : AbstractValidator<GetServiceCategoryByIdQuery>
 {
     private readonly string[] allowedSortByColumnNames = [nameof(ServiceCategory.NameAr), nameof(ServiceCategory.NameEn)];
 
-    public GetServiceCategoryByIdQueryHandlerValidator()
+    public GetServiceCategoryByIdQueryValidator()
     {
         RuleFor(r => r.Id)
             .NotEmpty()

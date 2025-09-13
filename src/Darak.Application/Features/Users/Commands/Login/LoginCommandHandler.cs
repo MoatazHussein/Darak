@@ -3,6 +3,7 @@ using Darak.Application.Common.Interfaces;
 using Darak.Application.Common.Interfaces.Security;
 using Darak.Domain.Exceptions;
 using Darak.Domain.Entities;
+using Darak.Application.Common.Dtos.Users;
 
 namespace Darak.Application.Features.Users.Commands.Login;
 

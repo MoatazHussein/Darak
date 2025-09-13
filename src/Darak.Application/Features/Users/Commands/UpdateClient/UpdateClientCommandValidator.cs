@@ -1,10 +1,10 @@
 ﻿using FluentValidation;
 
-namespace Darak.Application.Features.Users.Commands.UpdateContractor;
+namespace Darak.Application.Features.Users.Commands.UpdateClient;
 
-public class UpdateContractorCommandHandlerValidator : AbstractValidator<UpdateContractorCommand>
+public class UpdateClientCommandValidator : AbstractValidator<UpdateClientCommand>
 {
-    public UpdateContractorCommandHandlerValidator()
+    public UpdateClientCommandValidator()
     {
         RuleFor(dto => dto.FirstName).
             NotEmpty().WithMessage("Please provide a First Name")
@@ -23,9 +23,6 @@ public class UpdateContractorCommandHandlerValidator : AbstractValidator<UpdateC
             .MaximumLength(200)
             .When(dto => !string.IsNullOrEmpty(dto.Location))
             .WithMessage("Location must not exceed 200 characters");
-
-        RuleFor(dto => dto.ServiceCategoryId)
-          .NotEmpty().WithMessage("Please provide a Service Category Id ");
 
     }
 }

@@ -2,9 +2,9 @@
 
 namespace Darak.Application.Features.Users.Commands.RegisterContractor;
 
-public class RegisterContractorCommandHandlerValidator : AbstractValidator<RegisterContractorCommand>
+public class RegisterContractorCommandValidator : AbstractValidator<RegisterContractorCommand>
 {
-    public RegisterContractorCommandHandlerValidator()
+    public RegisterContractorCommandValidator()
     {
         RuleFor(dto => dto.FirstName).
             NotEmpty().WithMessage("Please provide a First Name")

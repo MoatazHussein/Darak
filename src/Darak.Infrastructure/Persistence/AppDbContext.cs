@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Darak.Domain.Entities;
+using Darak.Domain.Entities.Projects;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Darak.Domain.Entities;
 
 namespace Darak.Infrastructure.Persistence;
 
@@ -11,7 +12,8 @@ public class AppDbContext : IdentityDbContext<AppUser, AppRole, Guid>
 
 
     public DbSet<ServiceCategory> ServiceCategories { get; set; }
-
+    public DbSet<ProjectRequest> ProjectRequests { get; set; }
+    public DbSet<ProjectProposal> ProjectProposals { get; set; }
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder); 

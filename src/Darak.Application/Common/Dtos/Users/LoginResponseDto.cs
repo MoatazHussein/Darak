@@ -1,6 +1,6 @@
 ﻿using Darak.Domain.Constants;
 
-namespace Darak.Application.Features.Users.Commands.Login
+namespace Darak.Application.Common.Dtos.Users
 {
     public class LoginResponseDto
     {

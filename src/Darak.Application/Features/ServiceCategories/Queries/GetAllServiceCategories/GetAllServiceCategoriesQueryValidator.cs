@@ -3,11 +3,11 @@ using FluentValidation;
 
 namespace Darak.Application.Features.ServiceCategories.Queries.GetAllServiceCategories;
 
-public class GetAllServiceCategoriesQueryHandlerValidator : AbstractValidator<GetAllServiceCategoriesQuery>
+public class GetAllServiceCategoriesQueryValidator : AbstractValidator<GetAllServiceCategoriesQuery>
 {
     private readonly string[] allowedSortByColumnNames = [nameof(ServiceCategory.NameAr), nameof(ServiceCategory.NameEn)];
 
-    public GetAllServiceCategoriesQueryHandlerValidator()
+    public GetAllServiceCategoriesQueryValidator()
     {
         RuleFor(r => r.PageNumber)
             .GreaterThanOrEqualTo(1)

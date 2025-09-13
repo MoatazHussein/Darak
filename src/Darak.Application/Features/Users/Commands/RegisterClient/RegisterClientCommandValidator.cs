@@ -2,9 +2,9 @@
 
 namespace Darak.Application.Features.Users.Commands.RegisterClient;
 
-public class RegisterClientCommandHandlerValidator : AbstractValidator<RegisterClientCommand>
+public class RegisterClientCommandValidator : AbstractValidator<RegisterClientCommand>
 {
-    public RegisterClientCommandHandlerValidator()
+    public RegisterClientCommandValidator()
     {
         RuleFor(dto => dto.FirstName).
         NotEmpty().WithMessage("Please provide a First Name")

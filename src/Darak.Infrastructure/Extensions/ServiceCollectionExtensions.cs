@@ -46,6 +46,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUnitOfWork, EfUnitOfWork>();
 
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
 
         services.AddScoped<IStorageService, StorageService>();
         services.AddScoped<IStartupTask, EnsureStorageFoldersTask>();

@@ -33,7 +33,7 @@ public class ErrorHandlingMiddleware(ILogger<ErrorHandlingMiddleware> logger) : 
             context.Response.StatusCode = 500;
             await context.Response.WriteAsync(ex.Message);
         }
-        catch (DbUpdateException) 
+        catch (DbUpdateException ex) 
         {
             context.Response.StatusCode = 500;
             await context.Response.WriteAsync("Database update failed");

@@ -2,9 +2,9 @@
 
 namespace Darak.Application.Features.ServiceCategories.Commands.CreateServiceCategory;
 
-public class CreateServiceCategoryCommandHandlerValidator : AbstractValidator<CreateServiceCategoryCommand>
+public class CreateServiceCategoryCommandValidator : AbstractValidator<CreateServiceCategoryCommand>
 {
-    public CreateServiceCategoryCommandHandlerValidator()
+    public CreateServiceCategoryCommandValidator()
     {
         RuleFor(dto => dto.NameEn).
             NotEmpty().WithMessage("Please provide a valid English name")

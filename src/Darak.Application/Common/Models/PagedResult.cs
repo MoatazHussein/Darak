@@ -7,7 +7,7 @@ public class PagedResult<T>
         Items = items;
         TotalItemsCount = totalCount;
         TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
-        ItemsFrom = pageSize * (pageNumber - 1) + 1;
+        ItemsFrom = totalCount == 0 ? 0 : pageSize * (pageNumber - 1) + 1;
         ItemsTo = Math.Min(TotalItemsCount, pageNumber * pageSize);
     }
 

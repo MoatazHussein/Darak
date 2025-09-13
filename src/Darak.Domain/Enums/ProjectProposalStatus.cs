@@ -1,0 +1,9 @@
+﻿namespace Darak.Domain.Enums;
+
+public enum ProjectProposalStatus
+{
+    Pending = 1,
+    Accepted = 2,
+    Rejected = 3,
+    Cancelled = 4,
+}

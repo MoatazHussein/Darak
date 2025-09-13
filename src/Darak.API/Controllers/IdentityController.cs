@@ -36,14 +36,14 @@ public class IdentityController(IMediator mediator, IConfiguration configuration
         return Ok("Contractor registered successfully.");
     }
 
-    [HttpPost("update/client")]
+    [HttpPatch("update/client")]
     public async Task<IActionResult> UpdateClient(UpdateClientCommand command)
     {
         await mediator.Send(command);
         return Ok("Client updated successfully.");
     }
 
-    [HttpPost("update/contractor")]
+    [HttpPatch("update/contractor")]
     public async Task<IActionResult> UpdateContractor(UpdateContractorCommand command)
     {
         await mediator.Send(command);
