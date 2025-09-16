@@ -1,12 +1,13 @@
-﻿using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Darak.Application.Features.Projects.ProjectRequests.Commands.CreateProjectRequest;
+﻿using Darak.Application.Features.Projects.ProjectRequests.Commands.CreateProjectRequest;
 using Darak.Application.Features.Projects.ProjectRequests.Commands.DeleteProjectRequest;
 using Darak.Application.Features.Projects.ProjectRequests.Commands.UpdateProjectRequest;
 using Darak.Application.Features.Projects.ProjectRequests.Commands.UpdateProjectRequestStatus;
 using Darak.Application.Features.Projects.ProjectRequests.Queries.GetAllProjectRequests;
 using Darak.Application.Features.Projects.ProjectRequests.Queries.GetProjectRequestById;
+using Darak.Domain.Constants;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Darak.API.Controllers.Projects;
 
@@ -31,6 +32,7 @@ public class ProjectRequestsController (IMediator mediator) : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = UserRoles.Client)]
     public async Task<IActionResult> Create([FromBody] CreateProjectRequestCommand command)
     {
         var id = await mediator.Send(command);
@@ -39,6 +41,7 @@ public class ProjectRequestsController (IMediator mediator) : ControllerBase
 
 
     [HttpPatch()]
+    [Authorize(Roles = UserRoles.Client)]
     public async Task<IActionResult> UpdateProjectRequest(UpdateProjectRequestCommand command)
     {
         await mediator.Send(command);
@@ -47,6 +50,7 @@ public class ProjectRequestsController (IMediator mediator) : ControllerBase
     }
 
     [HttpPatch("status")]
+    [Authorize(Roles = UserRoles.Client)]
     public async Task<IActionResult> UpdateProjectRequestStatus(UpdateProjectRequestStatusCommand command)
     {
         await mediator.Send(command);
@@ -55,6 +59,7 @@ public class ProjectRequestsController (IMediator mediator) : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = UserRoles.Client)]
     public async Task<IActionResult> DeleteProjectRequest([FromRoute] Guid id)
     {
         await mediator.Send(new DeleteProjectRequestCommand(id));

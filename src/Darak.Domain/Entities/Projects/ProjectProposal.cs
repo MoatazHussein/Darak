@@ -6,7 +6,7 @@ public class ProjectProposal
 {
     public Guid Id { get; set; } 
     public Guid ProjectRequestId { get; set; }
-    public ProjectRequest? ProjectRequest { get; set; }
+    public ProjectRequest ProjectRequest { get; set; } = default!;
 
     public string Content { get; set; } = default!;
     public Guid CreatorId { get; set; }

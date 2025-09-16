@@ -9,4 +9,5 @@ public class ProjectProposalDto
     public int StatusValue { get; set; }
     public string StatusName { get; set; } = default!;
     public string CreatorEmail { get; set; } = default!;
+    public string? CreatorPhoneNumber { get; set; } = default!;
 }

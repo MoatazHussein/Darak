@@ -1,13 +1,44 @@
 ﻿using Darak.Application.Common.Interfaces;
 using Darak.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Darak.Infrastructure.Services.UnitOfWork;
 
-public class EfUnitOfWork(AppDbContext _context) : IUnitOfWork
+public sealed class EfUnitOfWork : IUnitOfWork, IAsyncDisposable
 {
-    public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
+    private readonly AppDbContext _db;
+    private IDbContextTransaction? _tx;
+
+    public EfUnitOfWork(AppDbContext db) => _db = db;
+
+    public async Task BeginTransactionAsync(CancellationToken ct = default)
+        => _tx ??= await _db.Database.BeginTransactionAsync(ct);
+
+    public async Task SaveChangesAsync(CancellationToken ct = default)
     {
-        await _context.SaveChangesAsync(cancellationToken);
+        await _db.SaveChangesAsync(ct);
+    }
+
+    public async Task CommitAsync(CancellationToken ct = default)
+    {
+        if (_tx is null) return;
+        await _tx.CommitAsync(ct);
+        await _tx.DisposeAsync();
+        _tx = null;
+    }
+
+    public async Task RollbackAsync(CancellationToken ct = default)
+    {
+        if (_tx is null) return;
+        await _tx.RollbackAsync(ct);
+        await _tx.DisposeAsync();
+        _tx = null;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_tx != null) await _tx.DisposeAsync();
     }
 }
+
 

@@ -1,5 +1,7 @@
 ﻿using Darak.Application.Common.Interfaces;
 using Darak.Application.Common.Interfaces.Security;
+using Darak.Domain.Entities;
+using Darak.Domain.Exceptions;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 
@@ -15,7 +17,8 @@ public class ForgotPasswordCommandHandler(
         var user = await userService.FindByEmailAsync(request.Email, cancellationToken);
         if (user is null || !await userService.IsEmailConfirmedAsync(request.Email, cancellationToken))
         {
-            return true;
+            throw new NotFoundException("User", request.Email);
+
         }
 
         var token = await userService.GeneratePasswordResetTokenAsync(user.Id, cancellationToken);

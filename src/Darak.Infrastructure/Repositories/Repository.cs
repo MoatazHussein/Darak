@@ -4,6 +4,7 @@ using Darak.Application.Common.Models;
 using Darak.Infrastructure.Extensions;
 using Darak.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace Darak.Infrastructure.Repositories;
 
@@ -35,10 +36,13 @@ public class Repository<T> : IRepository<T> where T : class
         return await _context.Set<T>().AnyAsync(predicate, cancellationToken);
     }
 
-    public async Task<List<T>> GetAllAsync(CancellationToken cancellationToken = default,
-       params Expression<Func<T, object>>[] includes)
+    public async Task<List<T>> GetAllAsync (Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default,
+     params Expression<Func<T, object>>[] includes)
     {
         IQueryable<T> query = _dbSet;
+
+        if (predicate != null)
+            query = query.Where(predicate);
 
         foreach (var include in includes)
             query = query.Include(include);
@@ -86,6 +90,10 @@ public class Repository<T> : IRepository<T> where T : class
         return Task.CompletedTask; 
     }
 
+    public Task<int> BulkUpdateAsync(Expression<Func<T, bool>> predicate, Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> setPropertyCalls)
+    {
+        return _dbSet.Where(predicate).ExecuteUpdateAsync(setPropertyCalls);
+    }
 
     public Task DeleteAsync(T entity)
     {

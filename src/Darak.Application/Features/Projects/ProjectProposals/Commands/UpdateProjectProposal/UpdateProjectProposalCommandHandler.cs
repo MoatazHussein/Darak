@@ -2,6 +2,7 @@
 using Darak.Application.Common.Interfaces;
 using Darak.Application.Common.Interfaces.Security;
 using Darak.Domain.Entities.Projects;
+using Darak.Domain.Enums;
 using Darak.Domain.Exceptions;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -19,13 +20,17 @@ public class UpdateProjectProposalCommandHandler(
     public async Task Handle(UpdateProjectProposalCommand request, CancellationToken cancellationToken)
     {
         logger.LogInformation("Updating ProjectProposal with id: {ProjectProposalId} with {@UpdatedProjectProposal}", request.Id, request);
-        var projectProposal = await repository.GetByIdAsync(request.Id);
+        var projectProposal = await repository.GetByIdAsync(request.Id, cancellationToken,[p=>p.ProjectRequest]);
         if (projectProposal is null)
             throw new NotFoundException(nameof(ProjectProposal), request.Id.ToString());
 
-
         if (projectProposal.CreatorId != currentUserService.UserId)
             throw new BusinessRuleException("You are not allowed to update this Proposal.", 403);
+
+        var projectRequest = projectProposal.ProjectRequest;
+
+        if (projectRequest.Status != ProjectRequestStatus.Open)
+            throw new BusinessRuleException("can't change status for proposal of closed project", 409);
 
         mapper.Map(request, projectProposal);
 

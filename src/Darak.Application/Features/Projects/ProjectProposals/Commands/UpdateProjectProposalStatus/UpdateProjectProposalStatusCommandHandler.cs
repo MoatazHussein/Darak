@@ -10,7 +10,6 @@ namespace Darak.Application.Features.Projects.ProjectProposals.Commands.UpdatePr
 
 public class UpdateProjectProposalStatusCommandHandler(
     ILogger<UpdateProjectProposalStatusCommandHandler> logger,
-    IRepository<ProjectRequest> projectRequestRepository,
     IRepository<ProjectProposal> projectProposalRepository,
     IUnitOfWork unitOfWork,
     ICurrentUserService currentUserService
@@ -19,22 +18,23 @@ public class UpdateProjectProposalStatusCommandHandler(
 {
     public async Task Handle(UpdateProjectProposalStatusCommand request, CancellationToken cancellationToken)
     {
+
+        await unitOfWork.BeginTransactionAsync(cancellationToken);
+
         logger.LogInformation("Updating ProjectProposal with id: {ProjectProposalId} with {@UpdatedProjectProposal}", request.Id, request);
-        var projectProposal = await projectProposalRepository.GetByIdAsync(request.Id);
+        var projectProposal = await projectProposalRepository.GetByIdAsync(request.Id, cancellationToken, [p =>p.ProjectRequest]);
         if (projectProposal is null)
             throw new NotFoundException(nameof(ProjectProposal), request.Id.ToString());
 
-
-        var projectRequest = await projectRequestRepository.GetByIdAsync(projectProposal.ProjectRequestId);
+        var projectRequest = projectProposal.ProjectRequest;
         if (projectRequest is null)
             throw new NotFoundException(nameof(ProjectRequest), projectProposal.ProjectRequestId.ToString());
 
-
-        //if (projectRequest.Status == ProjectRequestStatus.Closed)
-        //    throw new BusinessRuleException("can't change status for proposal of closed project", 409);
+        if (projectRequest.Status != ProjectRequestStatus.Open)
+            throw new BusinessRuleException("can't change status for proposal of closed project", 409);
 
         var allowedContractorActions = new[] { ProjectProposalStatus.Cancelled };
-        var allowedClientActions = new[] { ProjectProposalStatus.Accepted, ProjectProposalStatus.Rejected , ProjectProposalStatus.Cancelled };
+        var allowedClientActions = new[] { ProjectProposalStatus.Accepted, ProjectProposalStatus.Rejected };
 
 
         if (projectProposal.CreatorId == currentUserService.UserId && !allowedContractorActions.Contains(request.NewStatus))
@@ -50,10 +50,14 @@ public class UpdateProjectProposalStatusCommandHandler(
         if (request.NewStatus == ProjectProposalStatus.Accepted && projectProposal.Status == ProjectProposalStatus.Accepted)
             throw new BusinessRuleException("This proposal is already accepted.", 400);
 
-        var acceptedProjectProposal = await projectProposalRepository.GetAllAsync(cancellationToken,
-            pp => pp.ProjectRequestId == projectRequest.Id && pp.Status == ProjectProposalStatus.Accepted);
+        var acceptedProposalExists = await projectProposalRepository.AnyAsync(
+                 pp => pp.ProjectRequestId == projectRequest.Id 
+              && pp.Status == ProjectProposalStatus.Accepted 
+              && request.NewStatus == ProjectProposalStatus.Accepted
+              && pp.Id != projectProposal.Id
+            , cancellationToken);
 
-        if (acceptedProjectProposal != null && acceptedProjectProposal.Any(pp=> pp.Id != projectProposal.Id) && request.NewStatus == ProjectProposalStatus.Accepted)
+        if (acceptedProposalExists)
             throw new BusinessRuleException("Another proposal has already been accepted for this project request.", 409);
 
         projectProposal.Status = request.NewStatus;
@@ -63,17 +67,13 @@ public class UpdateProjectProposalStatusCommandHandler(
         {
             projectRequest.Status = ProjectRequestStatus.Closed;
 
-            var otherProposals = await projectProposalRepository.GetAllAsync(cancellationToken,
+            // Reject all other pending proposals for the same project request
+            await projectProposalRepository.BulkUpdateAsync(
                 pp => pp.ProjectRequestId == projectRequest.Id
-                           && pp.Id != request.Id
-                           && pp.Status == ProjectProposalStatus.Pending
-
-                );
-
-            foreach (var other in otherProposals)
-            {
-                other.Status = ProjectProposalStatus.Rejected;
-            }
+                      && pp.Id != request.Id
+                      && pp.Status == ProjectProposalStatus.Pending,
+                set => set.SetProperty(pp => pp.Status, ProjectProposalStatus.Rejected)
+            );
         }
 
         var projectInitiationStatuses = new[] { ProjectProposalStatus.Rejected, ProjectProposalStatus.Cancelled };
@@ -86,5 +86,8 @@ public class UpdateProjectProposalStatusCommandHandler(
         await projectProposalRepository.UpdateAsync(projectProposal);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await unitOfWork.CommitAsync(cancellationToken);
+
     }
 }
