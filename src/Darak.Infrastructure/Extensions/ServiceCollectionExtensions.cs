@@ -1,16 +1,17 @@
 ﻿using Darak.Application.Common.Interfaces;
+using Darak.Application.Common.Interfaces.Messaging;
 using Darak.Application.Common.Interfaces.Security;
 using Darak.Domain.Entities;
 using Darak.Infrastructure.Persistence;
 using Darak.Infrastructure.Repositories;
 using Darak.Infrastructure.Seeders;
 using Darak.Infrastructure.Services.Email;
-using Darak.Infrastructure.Services.Identity;
+using Darak.Infrastructure.Services.Messaging.Infobip;
+using Darak.Infrastructure.Services.Security;
 using Darak.Infrastructure.Services.Storage;
 using Darak.Infrastructure.Services.TimeConversion;
 using Darak.Infrastructure.Services.UnitOfWork;
 using Darak.Infrastructure.Startup;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -38,6 +39,12 @@ public static class ServiceCollectionExtensions
                 .AddSignInManager()
                 .AddDefaultTokenProviders();
 
+
+        services.AddIdentityCore<AppUser>(opt =>
+        {
+            opt.User.RequireUniqueEmail = false;     // phone-only users can have null email
+        });
+
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
         services.AddScoped<IAppSeeder, AppSeeder>();
@@ -50,6 +57,12 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IStorageService, StorageService>();
         services.AddScoped<IStartupTask, EnsureStorageFoldersTask>();
+
+        // OTP (DB implementation)
+        services.AddScoped<IOtpService, OtpServiceDb>();
+
+        // Infobip typed client
+        services.AddHttpClient<ISmsSender, InfobipSmsSender>();
 
     }
 

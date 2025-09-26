@@ -4,16 +4,19 @@ using Darak.Application.Features.Users.Commands.ForgotPassword;
 using Darak.Application.Features.Users.Commands.Login;
 using Darak.Application.Features.Users.Commands.RegisterClient;
 using Darak.Application.Features.Users.Commands.RegisterContractor;
+using Darak.Application.Features.Users.Commands.RequestRegistrationOtp;
 using Darak.Application.Features.Users.Commands.ResetPassword;
 using Darak.Application.Features.Users.Commands.UnassignUserRole;
 using Darak.Application.Features.Users.Commands.UpdateClient;
 using Darak.Application.Features.Users.Commands.UpdateContractor;
+using Darak.Application.Features.Users.Commands.VerifyClientRegistrationOtp;
 using Darak.Application.Features.Users.Queries.GetAllUsers;
 using Darak.Application.Features.Users.Queries.GetCurrentUser;
 using Darak.Domain.Constants;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Darak.API.Controllers;
 
@@ -34,6 +37,21 @@ public class IdentityController(IMediator mediator, IConfiguration configuration
     {
         await mediator.Send(command);
         return Ok("Contractor registered successfully.");
+    }
+
+    [HttpPost("request-registration-otp")]
+    public async Task<IActionResult> RequestRegistrationOtp([FromBody] RequestRegistrationOtpCommand command, CancellationToken ct)
+    {
+        await mediator.Send(command, ct);
+        return Ok("OTP sent");
+    }
+
+    [HttpPost("verify-client-registration-otp")]
+    public async Task<IActionResult> VerifyClientOtp([FromBody] VerifyClientRegistrationOtpCommand command, CancellationToken ct)
+    {
+        var result = await mediator.Send(command,ct);
+        return result ? Ok("Client registered successfully.")
+                      : BadRequest("Invalid or expired code");
     }
 
     [HttpPatch("update/client")]
@@ -140,10 +158,6 @@ public class IdentityController(IMediator mediator, IConfiguration configuration
     }
 
 
-
-
   
-
-
 
 }

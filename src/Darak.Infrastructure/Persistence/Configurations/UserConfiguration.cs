@@ -10,8 +10,8 @@ public class UserConfiguration : IEntityTypeConfiguration<AppUser>
     {
         builder.HasKey(u => u.Id);
         builder.Property(u => u.FirstName).IsRequired().HasMaxLength(50);
-        builder.Property(u => u.LastName).IsRequired().HasMaxLength(50);
-        builder.Property(u => u.Email).IsRequired().HasMaxLength(256);
+        builder.Property(u => u.LastName).HasMaxLength(50);
+        builder.Property(u => u.Email).HasMaxLength(256);
         builder.Property(u => u.PhoneNumber).HasMaxLength(15);
         builder.Property(u => u.Location).HasMaxLength(200);
         builder.Property(u => u.ServiceCategoryId).HasColumnType("uniqueidentifier");
@@ -20,5 +20,10 @@ public class UserConfiguration : IEntityTypeConfiguration<AppUser>
             .WithMany()
             .HasForeignKey(u => u.ServiceCategoryId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasIndex(u => u.PhoneNumber)
+             .IsUnique()
+             .HasFilter("[PhoneNumber] IS NOT NULL");
+
     }
 }

@@ -6,13 +6,12 @@ public class RegisterContractorCommandValidator : AbstractValidator<RegisterCont
 {
     public RegisterContractorCommandValidator()
     {
-        RuleFor(dto => dto.FirstName).
-            NotEmpty().WithMessage("Please provide a First Name")
+        RuleFor(dto => dto.FirstName)
+            .NotEmpty().WithMessage("Please provide a First Name")
             .Length(3, 50);
 
-        RuleFor(dto => dto.LastName).
-            NotEmpty().WithMessage("Please provide a Last Name")
-            .Length(3, 50);
+        RuleFor(dto => dto.LastName)
+            .MaximumLength(50);
 
         RuleFor(dto => dto.Email)
         .EmailAddress()

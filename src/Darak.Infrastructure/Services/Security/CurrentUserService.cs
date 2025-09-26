@@ -3,7 +3,7 @@ using Darak.Application.Common.Interfaces.Security;
 using Darak.Domain.Exceptions;
 using Microsoft.AspNetCore.Http;
 
-namespace Darak.Infrastructure.Services.Identity;
+namespace Darak.Infrastructure.Services.Security;
 
 public class CurrentUserService : ICurrentUserService
 {

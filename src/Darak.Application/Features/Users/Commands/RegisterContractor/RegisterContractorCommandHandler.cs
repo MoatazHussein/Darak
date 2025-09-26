@@ -4,7 +4,6 @@ using Darak.Application.Common.Interfaces;
 using Darak.Application.Common.Interfaces.Security;
 using Darak.Domain.Constants;
 using Darak.Domain.Entities;
-using Darak.Domain.Enums;
 using Darak.Domain.Exceptions;
 using MediatR;
 using Microsoft.Extensions.Configuration;

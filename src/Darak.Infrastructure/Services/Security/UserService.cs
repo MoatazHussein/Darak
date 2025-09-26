@@ -9,7 +9,7 @@ using Darak.Domain.Exceptions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace Darak.Infrastructure.Services.Identity;
+namespace Darak.Infrastructure.Services.Security;
 
 public sealed class UserService(UserManager<AppUser> userManager, SignInManager<AppUser> signIn) : IUserService
 {
@@ -40,6 +40,17 @@ public sealed class UserService(UserManager<AppUser> userManager, SignInManager<
             throw new ApplicationException(string.Join(", ", result.Errors.Select(e => e.Description)));
 
         return new AppUser { Id = user.Id, Email = user.Email };
+    }
+
+
+    public async Task<AppUser> CreatePhoneOnlyUserAsync2(AppUser user, CancellationToken ct)
+    {
+        // Create without password (passwordless / OTP-based)
+        var result = await userManager.CreateAsync(user);
+        if (!result.Succeeded)
+            throw new InvalidOperationException(string.Join("; ", result.Errors.Select(e => e.Description)));
+
+        return user;
     }
 
 
@@ -323,4 +334,34 @@ public sealed class UserService(UserManager<AppUser> userManager, SignInManager<
         return await userManager.GeneratePasswordResetTokenAsync(user);
     }
 
+    public Task<string> NormalizePhoneAsync(string phone, CancellationToken ct)
+    {
+        // TODO: use libphonenumber for true E.164; here’s a simple fallback
+        var p = phone.Trim().Replace(" ", "");
+        return Task.FromResult(p);
+    }
+
+    public Task<AppUser?> FindByPhoneAsync(string phone, CancellationToken ct)
+        => userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == phone, ct);
+
+    public async Task<AppUser> CreateUserAsync(AppUser user, CancellationToken ct)
+    {
+        // Create without password (passwordless / OTP-based)
+        var result = await userManager.CreateAsync(user);
+        if (!result.Succeeded)
+            throw new InvalidOperationException(string.Join("; ", result.Errors.Select(e => e.Description)));
+
+        return user;
+    }
+
+    public async Task MarkPhoneConfirmedAsync(Guid userId, CancellationToken ct)
+    {
+        var user = await userManager.Users.FirstAsync(u => u.Id == userId, ct);
+        if (!user.PhoneNumberConfirmed)
+        {
+            user.PhoneNumberConfirmed = true;
+            user.UpdatedAt = DateTime.UtcNow;
+            await userManager.UpdateAsync(user);
+        }
+    }
 }

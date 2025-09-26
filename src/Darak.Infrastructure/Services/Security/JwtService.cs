@@ -5,7 +5,7 @@ using Darak.Application.Common.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Darak.Infrastructure.Services.Identity;
+namespace Darak.Infrastructure.Services.Security;
 
 public class JwtService(IConfiguration config) : IJwtService
 {
