@@ -1,5 +1,4 @@
-﻿using Darak.Application.Features.Users.Commands.LoginWithOtp;
-using FluentValidation;
+﻿using FluentValidation;
 
 namespace Darak.Application.Features.Users.Commands.VerifyLoginOtp;
 
