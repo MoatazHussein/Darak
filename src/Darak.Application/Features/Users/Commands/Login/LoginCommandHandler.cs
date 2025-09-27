@@ -21,13 +21,14 @@ public class LoginCommandHandler(IUserService userService, IJwtService jwtServic
 
         var roles = await userService.GetRolesAsync(user.Id, cancellationToken);
 
-        var token = await jwtService.GenerateTokenAsync(user.Id, user.Email!, roles);
+        var token = await jwtService.GenerateTokenAsync(user, roles);
 
         var (userTypeValue, userTypeName) = await userService.GetUserTypeAsync(user.Id, cancellationToken);
 
         return new LoginResponseDto
         {
             Email = user.Email!,
+            PhoneNumber = user.PhoneNumber!,
             Token = token,
             UserTypeValue = userTypeValue,
             UserTypeName = userTypeName,

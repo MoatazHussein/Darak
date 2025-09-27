@@ -1,5 +1,6 @@
 ﻿using Darak.Application.Common.Interfaces.Messaging;
 using Darak.Application.Common.Interfaces.Security;
+using Darak.Domain.Constants;
 using Darak.Domain.Exceptions;
 using MediatR;
 
@@ -7,7 +8,7 @@ namespace Darak.Application.Features.Users.Commands.RequestRegistrationOtp;
 
 public class RequestRegistrationOtpCommandHandler(
     IUserService userService,
-    IOtpService otp,
+    IOtpService otpService,
     ISmsSender sms
     ) : IRequestHandler<RequestRegistrationOtpCommand>
 {
@@ -20,11 +21,9 @@ public class RequestRegistrationOtpCommandHandler(
             throw new BusinessRuleException("This User with associated phone already exists");
         }
 
-        var code = await otp.GenerateAsync(req.PhoneNumber,"Register", ct);
+        var code = await otpService.GenerateAsync(req.PhoneNumber,OtpPurpose.Register, ct);
 
         await sms.SendAsync(req.PhoneNumber, $"Your verification code is: {code}", ct);
 
     }
-
-   
 }

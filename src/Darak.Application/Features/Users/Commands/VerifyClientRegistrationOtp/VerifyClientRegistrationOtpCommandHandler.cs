@@ -8,7 +8,7 @@ using MediatR;
 namespace Darak.Application.Features.Users.Commands.VerifyClientRegistrationOtp;
 
 public class VerifyClientRegistrationOtpCommandHandler(
-    IOtpService otp,
+    IOtpService otpService,
     IUserService userService
     ) : IRequestHandler<VerifyClientRegistrationOtpCommand, bool>
 {
@@ -16,7 +16,7 @@ public class VerifyClientRegistrationOtpCommandHandler(
     {
 
         // 1) Verify OTP
-        var ok = await otp.VerifyAsync(request.PhoneNumber, "Register", request.Code, ct);
+        var ok = await otpService.VerifyAsync(request.PhoneNumber, OtpPurpose.Register, request.Code, ct);
         if (!ok) throw new BusinessRuleException("Invalid or expired OTP.");
 
         // 2) Normalize the phone (E.164 ideally) – implement inside IUserService

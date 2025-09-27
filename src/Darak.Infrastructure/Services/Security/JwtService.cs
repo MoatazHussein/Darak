@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Darak.Application.Common.Interfaces;
+using Darak.Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
@@ -9,13 +10,21 @@ namespace Darak.Infrastructure.Services.Security;
 
 public class JwtService(IConfiguration config) : IJwtService
 {
-    public Task<string> GenerateTokenAsync(Guid userId, string email, IEnumerable<string> roles)
+    public Task<string> GenerateTokenAsync(AppUser user, IEnumerable<string> roles)
     {
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
-            new Claim(ClaimTypes.Email, email ?? string.Empty),
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
         };
+
+        if (!string.IsNullOrWhiteSpace(user.Email))
+            claims.Add(new Claim(JwtRegisteredClaimNames.Email, user.Email));
+
+        if (!string.IsNullOrWhiteSpace(user.PhoneNumber))
+        {
+            claims.Add(new Claim("phone_number", user.PhoneNumber));
+            claims.Add(new Claim("phone_number_verified", "true"));
+        }
 
         if (roles != null)
         {

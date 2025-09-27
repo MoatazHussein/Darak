@@ -1,9 +1,12 @@
-﻿using Darak.Application.Features.Users.Commands.AssignUserRole;
+﻿using Darak.Application.Common.Dtos.Users;
+using Darak.Application.Features.Users.Commands.AssignUserRole;
 using Darak.Application.Features.Users.Commands.ConfirmEmail;
 using Darak.Application.Features.Users.Commands.ForgotPassword;
 using Darak.Application.Features.Users.Commands.Login;
+using Darak.Application.Features.Users.Commands.LoginWithOtp;
 using Darak.Application.Features.Users.Commands.RegisterClient;
 using Darak.Application.Features.Users.Commands.RegisterContractor;
+using Darak.Application.Features.Users.Commands.RequestLoginOtp;
 using Darak.Application.Features.Users.Commands.RequestRegistrationOtp;
 using Darak.Application.Features.Users.Commands.ResetPassword;
 using Darak.Application.Features.Users.Commands.UnassignUserRole;
@@ -157,7 +160,21 @@ public class IdentityController(IMediator mediator, IConfiguration configuration
         return Ok(result);
     }
 
+    [HttpPost("request-login-otp")]
+    public async Task<IActionResult> RequestLoginOtp([FromBody] RequestLoginOtpCommand command, CancellationToken ct)
+    {
+        await mediator.Send(new RequestLoginOtpCommand(command.PhoneNumber), ct);
+        return Ok("OTP sent");
+    }
 
-  
+    [HttpPost("verify-login-otp")]
+    public async Task<ActionResult<LoginResponseDto>> VerifyLoginOtp([FromBody] VerifyLoginOtpCommand command, CancellationToken ct)
+    {
+        var result = await mediator.Send(new VerifyLoginOtpCommand(command.PhoneNumber, command.Code), ct);
+        return Ok(result);
+    }
+
+
+
 
 }
